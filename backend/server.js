@@ -4,17 +4,20 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const userRoute = require("./routes/userRoute")
-const errorHandler = require("./middleware/errorMiddleware")
+const userRoute = require("./routes/userRoute");
+const errorHandler = require("./middleware/errorMiddleware");
+const cookieParser = require("cookie-parser");
 const app = express();
 
 //middlewares
 app.use(express.json());
-app.use(express.urlencoded({extended:false}))
-app.use(bodyParser.json())
+app.use(cookieParser());
+app.use(express.urlencoded({extended:false}));
+app.use(bodyParser.json());
+app.use(cors());
 
 //routes middleware
-app.use("/api/users",userRoute)
+app.use("/api/users",userRoute);
 
 //Routes
 app.get("/",(req,res) =>{
