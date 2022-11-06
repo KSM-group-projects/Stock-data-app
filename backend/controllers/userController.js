@@ -3,6 +3,7 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+//generate token
 const generateToken = (id) => {
     return jwt.sign({id},process.env.JWT_SECRET,{expiresIn:"1d"});
 };
@@ -10,6 +11,7 @@ const generateToken = (id) => {
 // register user
 const registerUser = asyncHandler ( async (req,res) =>{
     const {name,email,password} = req.body
+
     //validation
     if(!name || !email || !password){
         res.status(400)
@@ -62,11 +64,10 @@ const loginUser = asyncHandler(async (req,res) => {
     // res.send("Login user");
     const {email,password} = req.body;
 
-    //validate request
-    
+    //validate request 
     if(!email || !password){
         res.status(400);
-    throw new Error("Please add email and password!");
+        throw new Error("Please add email and password!");
     }
     //check if user exists
     const user = await User.findOne({email});
@@ -117,24 +118,40 @@ const logout = asyncHandler(async (req,res) => {
 
 //get user data
 const getUser = asyncHandler(async (req,res) => {
-    const user = await User.findById(req.user._id)
+    const user = await User.findById(req.user._id);
 
     if(user){
-        const {_id,name,email,photo,phone,bio} = user
+        const {_id,name,email,photo,phone,bio} = user;
         res.status(200).json({
             _id,name,email,photo,phone,bio,
         });
     }else{
-        res.status(400)
-        throw new Error("User not found!")
+        res.status(400);
+        throw new Error("User not found!");
     }
-})
+});
+
+//get login status 
+const loginStatus = asyncHandler(async (req,res) =>{
+    const token = req.cookies.token;
+    if(!token){
+        return res.json(false);
+    }
+    
+    //verify token
+    const verified = jwt.verify(token,process.env.JWT_SECRET);
+    if(verified){
+        return res.json(true);
+    }
+    return res.json(false);
+});
 
 module.exports = {
     registerUser,
     loginUser,
     logout,
     getUser,
+    loginStatus,
 }
 
 /*
